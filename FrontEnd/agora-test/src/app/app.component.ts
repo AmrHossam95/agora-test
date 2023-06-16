@@ -11,6 +11,7 @@ import AgoraRTC, {
   ScreenEncoderConfigurationPreset,
   VideoEncoderConfigurationPreset
 } from 'agora-rtc-sdk-ng';
+
 import { HttpClient } from "@angular/common/http";
 import { environment } from 'src/environments/environment';
 @Component({
@@ -140,6 +141,13 @@ export class AppComponent implements OnInit {
   
   remoteUser : IAgoraRTCRemoteUser;
   screenRemoteUser: IAgoraRTCRemoteUser;
+
+
+  //whiteboard
+  wbConfig: WhiteWebSdkConfiguration = {
+    "appIdentifier" : "WNvdwAlNEe61yUX5hW-c6g/h4vLmWcAnoOk5Q",
+    "region": "us-sv"
+  }
 
   constructor(private _httpClient: HttpClient){
     this.agoraClient =  AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -344,6 +352,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(){
     this.agoraClientSetup();
+    this.whiteBoardSetup();
     window.addEventListener("beforeunload", async ()=>{
       if(this.agoraClient){
         this.agoraClient.unpublish(); //unpublish all tracks
@@ -405,6 +414,31 @@ export class AppComponent implements OnInit {
 
 
     this.onConnect();
+  }
+
+
+  whiteBoardSetup(){
+
+    let wbInstance = new WhiteWebSdk(this.wbConfig);
+
+    this._httpClient.get<{roomId: string, roomToken: string}>(`${window.location.href}wb-data`)
+    .subscribe(
+      res => {
+        wbInstance.joinRoom({
+          "uid": Math.ceil(Math.random() * 10e10).toString(),
+          "uuid": res.roomId,
+          "roomToken": res.roomToken
+        })
+        .then((room) => {
+          console.log("room joined successfully");
+          room.bindHtmlElement(document.getElementById("whiteboard"));
+        })
+        .catch(e=>{
+          console.log("room joining failed");
+          console.error(e);
+        });
+      }
+    )
   }
 
   onConnect(){

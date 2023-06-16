@@ -28,3 +28,23 @@ button {
     height: fit-content;
     font-size: 16px;
 }
+
+
+#wb-container {
+    width: fit-content;
+    height: fit-content;
+
+    position: fixed;
+    bottom: 0;
+    right: 0;
+
+    border-style: solid;
+    border-color: black;
+    border-width: 2px;
+
+}
+
+#wb-container > #whiteboard {
+    width: 300px;
+    height: 500px;
+}
