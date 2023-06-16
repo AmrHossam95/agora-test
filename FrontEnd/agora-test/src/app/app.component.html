@@ -1,0 +1,39 @@
+<div style="margin:1em">
+    <h1>Hello Agora</h1>
+
+    
+    <h1>local</h1>
+    <h3>Up Network Quality : {{UpNetworkQuality}}</h3>
+    <h3>Down Network Quality: {{DownNetworkQuality}}</h3>
+    <h2>Resolution: {{localResolution.width}}x{{localResolution.height}}</h2>
+    <button (click)="startOrStopVideo()"> start / stop </button><br><br>
+    <!-- <button [disabled]="!canChangeQuality" (click)="changeQuality(1)">Upgrade Quality</button>
+    <button [disabled]="!canChangeQuality" (click)="changeQuality(-1)">Downgrade Quality</button><br> -->
+
+    <div
+        class="local" #local>
+    </div>
+    
+    
+    <h2>remote</h2>
+    <br>
+    <h3>Up Network Quality : {{remoteUpNetworkQuality}}</h3>
+    <h3>Down Network Quality: {{remoteDownNetworkQuality}}</h3>
+    <h2>Resolution: {{remoteResolution.width}}x{{remoteResolution.height}}</h2>
+    <div
+        class="remote" #remoteVideo>
+    </div>
+        
+
+
+    <h2>shared screen</h2>
+
+    <button (click)="onClickScreenSharingBtn()"> {{screenIsShared ? "stop sharing":"start sharing"}}</button>
+    <br>
+   <!--  <button (click)="toggleScreenShaingMode()">switch mode </button> mode: {{screenMode}}<br><br>
+    <button (click)="changeScreenQuality(1)">upgrade Quality</button>
+    <button (click)="changeScreenQuality(-1)">downGrade Quality</button> -->
+    <div
+        class="screen" #remoteScreen>
+    </div>
+</div>
