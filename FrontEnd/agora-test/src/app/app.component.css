@@ -48,3 +48,24 @@ button {
     width: 300px;
     height: 500px;
 }
+
+#chat {
+    width: fit-content;
+    height: fit-content;
+
+    position: fixed;
+    top: 0px;
+    right: 0px;
+
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+
+    background-color: rgb(255, 216, 118);
+}
+
+#chat > #msgs-container {
+    width: 300px;
+    height: 120px;
+    overflow-y: scroll;
+}

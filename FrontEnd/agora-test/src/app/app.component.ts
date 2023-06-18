@@ -14,6 +14,7 @@ import AgoraRTC, {
 
 import { HttpClient } from "@angular/common/http";
 import { environment } from 'src/environments/environment';
+import AgoraRTM, { RtmChannel, RtmClient, RtmMessage } from 'agora-rtm-sdk';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -23,6 +24,8 @@ export class AppComponent implements OnInit {
   title = 'agora-test';
   agoraClient : IAgoraRTCClient;
   screeClient : IAgoraRTCClient;
+  rtmClient : RtmClient;
+  rtmChannel: RtmChannel;
 
   @ViewChild('local')
   localVideo!: ElementRef;
@@ -152,6 +155,7 @@ export class AppComponent implements OnInit {
   constructor(private _httpClient: HttpClient){
     this.agoraClient =  AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     this.screeClient =  AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    this.rtmClient = AgoraRTM.createInstance(this.clientOptions.appId);
 
     //this.connectionStateHandler();
     this.initializeQualityHistory();
@@ -353,6 +357,9 @@ export class AppComponent implements OnInit {
   ngOnInit(){
     this.agoraClientSetup();
     this.whiteBoardSetup();
+    setTimeout(()=>{
+      this.agoraRTMSetup();
+    }, 2000);
     window.addEventListener("beforeunload", async ()=>{
       if(this.agoraClient){
         this.agoraClient.unpublish(); //unpublish all tracks
@@ -416,6 +423,68 @@ export class AppComponent implements OnInit {
     this.onConnect();
   }
 
+  agoraRTMSetup(){
+    
+    this.rtmChannel  = this.rtmClient.createChannel(this.clientOptions.channel);
+
+    this.rtmClient.on("ConnectionStateChanged", (newState, reason)=>{
+      console.log(" --------- RTM Connection state changed ---------");
+      console.log(newState, reason);
+    });
+
+    this.rtmChannel.on('ChannelMessage', function (message, memberId) {
+      console.log("---- new message ------");
+      console.log(`member: (${memberId}), message: ${message}`);
+      
+      let msgContainer = document.getElementById("msgs-container")
+      msgContainer.appendChild(document.createElement('div')).append("user_" + memberId + " : " + message.text);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    });
+    // Display channel member stats
+    this.rtmChannel.on('MemberJoined', function (memberId) {
+      
+      console.log("--- new member ------");
+      console.log(`member: ${memberId}`);
+      //document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " joined the channel")
+    
+    });
+    // Display channel member stats
+    this.rtmChannel.on('MemberLeft', function (memberId) {
+      console.log("--- member left ------");
+      console.log(`member: ${memberId}`);
+      //document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " left the channel")
+    });
+
+    console.log("------ just before login ---------");
+    console.log(`uid: ${this.clientOptions.uid}`);
+    console.log(`token: ${this.clientOptions.token}`);
+
+    this._httpClient.get<IToken>(`${window.location.href}rtm-token/${this.clientOptions.uid}`)
+    .subscribe((response)=>{
+
+      this.rtmClient.login({
+        uid: this.clientOptions.uid.toString(), 
+        token: response.token
+      })
+      .then(()=>{
+        console.log("------- RTM login success -----------");
+        return this.rtmChannel.join()
+        .then(()=>{
+          console.log("------ joined RTM channel successfully -------");
+          let i=0;
+          setInterval(()=>{
+            this.rtmChannel.sendMessage({"messageType": "TEXT", "text": "hello " + i++});
+          }, 1000);
+          
+        });
+      })
+      .catch((e)=>{
+        console.error("---------- RTM failed -----------");
+        console.error(e);
+      });
+    })
+
+  }
 
   whiteBoardSetup(){
 

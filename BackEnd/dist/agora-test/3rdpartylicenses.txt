@@ -39,6 +39,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 agora-rtc-sdk-ng
 MIT
 
+agora-rtm-sdk
+UNLICENSED
+
 rxjs
 Apache-2.0
                                Apache License

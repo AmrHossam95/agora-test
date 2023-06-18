@@ -6,7 +6,7 @@ let app = express();
 
 
 let cors = require("cors");
-let { RtcTokenBuilder, RtcRole } = require('agora-access-token');
+let { RtcTokenBuilder, RtcRole, RtmTokenBuilder, RtmRole } = require('agora-access-token');
 
 const cert = '33e3f30f86564186a288e31860e7e4db';
 const appId = 'd21fd5bea4e4402b870c100d7172619e';
@@ -53,6 +53,27 @@ app.get("/token/:type/:channel", (req, res)=>{
     );
     res.end();
 });
+
+
+app.get("/rtm-token/:uid", (req, res)=>{
+    let token = RtmTokenBuilder.buildToken(
+        appId,
+        cert,
+        req.params.uid,
+        1,
+        Math.floor( Date.now() / 1000) + expirationTimeInSeconds
+    );
+
+    res.setHeader("content-Type", "application/json");
+    res.json(
+        {
+            token,
+            uid
+        }
+    );
+    res.end();
+});
+
 
 
 app.get("/wb-data", async (req, res) => {
